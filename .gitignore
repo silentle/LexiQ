@@ -3,3 +3,5 @@
 
 #Database
 *.sqlite3
+
+Qvenv/
