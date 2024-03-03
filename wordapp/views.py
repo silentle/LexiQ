@@ -91,7 +91,7 @@ def game(request, group_id):
 
         # 检查用户的猜测是否完全正确
         if all(g == a for g, a in zip(guessed_word, word.word)):
-            # 如果猜测正确，用户可以切换到下一个单词
+            # 如果猜测正确，自动切换到下一个单词
             words = Word.objects.filter(group_id=group_id)
             if words.exists():
                 word = random.choice(words)
