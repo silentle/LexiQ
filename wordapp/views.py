@@ -159,6 +159,8 @@ def get_feedback(actual_word, guessed_word):
 
 
 async def tts(request, word):  # 异步
+    if not os.path.exists('wordapp/tts'):
+        os.makedirs('wordapp/tts')
     delete_files_in_folder('wordapp/tts')
     TEXT = word
     VOICE = "en-GB-SoniaNeural"
