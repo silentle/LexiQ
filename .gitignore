@@ -3,6 +3,7 @@
 
 #Database
 *.sqlite3
+*.log
 
 Qvenv/
 wordapp/tts/*
