@@ -1,11 +1,13 @@
 from django.shortcuts import render, redirect
-from .models import Word, WordGroup
+from .models import Word, WordGroup,StudyRecord
 from django.http import JsonResponse,HttpResponse
 from django.contrib import messages
 import csv,random,edge_tts,os
 from io import TextIOWrapper
 from .forms import UploadCSVForm,WordGroupForm
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.forms import AuthenticationForm,UserCreationForm
+from django.contrib.auth import login as auth_login
 
 
 
@@ -94,12 +96,17 @@ def game(request, group_id):
             # 如果猜测正确，自动切换到下一个单词
             words = Word.objects.filter(group_id=group_id)
             if words.exists():
+                if request.user.is_authenticated:#如果用户已登录
+                    study_record = StudyRecord(user=request.user, word=word)
+                    study_record.save()
                 word = random.choice(words)
                 context = {
                     'word': word,
                     'success_message': 'Congratulations! You guessed the word correctly.'
                 }
+                
                 return render(request, 'wordapp/game.html', context)
+
             else:
                 return redirect('start_game')
         else:
@@ -126,16 +133,7 @@ def game(request, group_id):
         else:
             return redirect('start_game')
 
-def get_feedback(actual_word, guessed_word):
-    feedback = []
-    for i in range(len(actual_word)):
-        if guessed_word[i] == actual_word[i]:
-            feedback.append('green')  # 绿色表示字母和位置都正确
-        elif guessed_word[i] in actual_word:
-            feedback.append('yellow')  # 黄色表示字母正确但位置不正确
-        else:
-            feedback.append('gray')  # 灰色表示字母不在答案中
-    return feedback
+
 
 
 def get_feedback(actual_word, guessed_word):
@@ -179,3 +177,40 @@ def play_audio(request, file_path):
     with open(audio_file, 'rb') as f:
         response = HttpResponse(f.read(), content_type="audio/mp3")
         return response
+    
+def login(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            auth_login(request, user)
+            return redirect('start_game')  # 登录成功后重定向到开始界面
+    else:
+        form = AuthenticationForm()
+    return render(request, 'registration/login.html', {'form': form})
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')  # 注册成功后重定向到登录页面
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/register.html', {'form': form})
+
+
+def view_study_records(request):
+    # 获取当前登录的用户
+    current_user = request.user
+    
+    # 如果用户已登录，则查询该用户的学习记录并按时间排序
+    if request.user.is_authenticated:
+        study_records = StudyRecord.objects.filter(user=current_user).order_by('-timestamp')
+        total_records = study_records.count()
+
+        return render(request, 'wordapp/view_study_records.html', {'study_records': study_records,'total_records': total_records})
+    else:
+        # 如果用户未登录，可以根据具体需求进行处理，例如重定向到登录页面或者显示相应的提示信息
+        return render(request, 'registration/login.html')
+

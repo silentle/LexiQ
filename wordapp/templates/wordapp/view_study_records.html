@@ -1,0 +1,36 @@
+{% extends "wordapp/base.html" %}
+{% load bootstrap5 %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">学习记录</h1>
+    <div class="card text-center title-font">
+        <div class="card-header">
+            总数
+        </div>
+        <div class="card-body">
+            <p class="card-text">你已经学习了</p>
+            <h1 class="card-title display-1">{{ total_records }}</h1>
+            <p class="card-text">个单词</p>
+        </div>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>单词</th>
+                <th>时间</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in study_records %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ record.word }}</td>
+                <td>{{ record.timestamp }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

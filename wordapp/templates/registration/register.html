@@ -1,0 +1,13 @@
+{% extends "wordapp/base.html" %}
+{% load bootstrap5 %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">注册</h1>
+    <form method="post">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        <button type="submit" class="btn btn-primary">注册</button>
+    </form>
+</div>
+{% endblock %}

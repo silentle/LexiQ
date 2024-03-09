@@ -16,18 +16,20 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from wordapp.views import upload_csv,index,upload_csv,display_words,start_game,delete_word_group,game,tts,play_audio
+from wordapp.views import upload_csv,index,upload_csv,display_words,start_game,delete_word_group,game,tts,play_audio,register,login,view_study_records
 
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('', index, name='index'),
+    path('register/', register, name='register'),
+    path('login/', login, name='login'),
     path('upload_csv/', upload_csv, name='upload_csv'),
     path('delete_word_group/', delete_word_group, name='delete_word_group'),
-
     path('display_words/', display_words, name='display_words'),
     path('start_game/', start_game, name='start_game'),
     path('game/<int:group_id>/', game, name='game'),
     path('tts/<str:word>/', tts, name='tts'),
     path('play-audio/<path:file_path>/', play_audio, name='play_audio'),
+    path('view_study_records/', view_study_records, name='view_study_records')
 ]

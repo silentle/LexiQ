@@ -3,5 +3,6 @@
 
 #Database
 *.sqlite3
+*.mp3
 
 Qvenv/

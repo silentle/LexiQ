@@ -1,5 +1,5 @@
 {% load bootstrap5 %}
-
+{% load static %}
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -7,23 +7,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}LexiQ - 一款简洁的背单词软件{% endblock %}</title>
     {% bootstrap_css %}
-    <style>
-        body {
-            padding-top: 5rem;
-            background-color: #; /* 米色F1FADA */
-        }
-        .navbar {
-            background-color: #265073 !important; /* 导航栏颜色 */
-        }
-        .jumbotron {
-            background-color: #9AD0C2; 
-            color: #fff;
-            border-radius: 20px; /* 圆角设计 */
-            padding: 2rem; /* 内边距 */
-            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1); /* 阴影效果 */
-        }
-    </style>
+
 </head>
+<head>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container">
@@ -44,7 +33,17 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'upload_csv' %}">上传 CSV 文件</a>
                     </li>
-                    
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          个人中心
+                        </a>
+                        <ul class="dropdown-menu">
+                          <li><a class="dropdown-item" href="{% url 'login' %}">登录</a></li>
+                          <li><a class="dropdown-item" href="{% url 'register' %}">注册</a></li>
+                          <li><hr class="dropdown-divider"></li>
+                          <li><a class="dropdown-item" href="{% url 'view_study_records' %}">学习记录</a></li>
+                        </ul>
+                      </li>
 
                 </ul>
             </div>

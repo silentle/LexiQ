@@ -1,0 +1,14 @@
+@font-face {
+    font-family: 'SmileySans';
+    src: url('../fonts/SmileySans-Oblique.ttf') format('truetype'); /* 得意黑 */
+}
+
+.title-font {
+    font-family: 'SmileySans', sans-serif;
+}
+
+body {
+    padding-top: 5rem;}
+.navbar {
+    background-color: #265073; /* 导航栏颜色 */
+}
