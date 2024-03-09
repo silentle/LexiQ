@@ -37,9 +37,11 @@ class StudyRecordModelTest(TestCase):
     def setUpTestData(cls):
         # Set up non-modified objects used by all test methods
         group = WordGroup.objects.create(name='Test Group')
-        word = Word.objects.create(word='test', meaning='test meaning', group=group)
+        word = Word.objects.create(
+            word='test', meaning='test meaning', group=group)
         user = User.objects.create_user(username='testuser', password='12345')
-        StudyRecord.objects.create(user=user, word=word, timestamp=timezone.now())
+        StudyRecord.objects.create(
+            user=user, word=word, timestamp=timezone.now())
 
     def test_study_record_user_label(self):
         record = StudyRecord.objects.get(id=1)
@@ -58,7 +60,8 @@ class StudyRecordModelTest(TestCase):
 
     def test_study_record_str_method(self):
         record = StudyRecord.objects.get(id=1)
-        self.assertEqual(str(record), 'testuser - test - {}'.format(record.timestamp))
+        self.assertEqual(
+            str(record), 'testuser - test - {}'.format(record.timestamp))
 
 
 class ViewTests(TestCase):
@@ -76,6 +79,3 @@ class ViewTests(TestCase):
         response = self.client.get(reverse('game', kwargs={'group_id': 1}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'wordapp/game.html')
-
-    # Add more test cases for other views as needed
-

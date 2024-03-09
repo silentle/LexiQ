@@ -14,7 +14,21 @@
             <p class="card-text">个单词</p>
         </div>
     </div>
-    <table class="table">
+    <!-- 用户成就 -->
+    <div class="mt-5">
+        <h2 class="mb-3">你的成就</h2>
+        {% if user_achievements %}
+        <ul class="list-group">
+            {% for achievement in user_achievements %}
+            <li class="list-group-item">{{ achievement.achievement.name }} - {{ achievement.achievement.description }}</li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>当前还没有成就</p>
+        {% endif %}
+    </div>
+    <!-- 学习记录表格 -->
+    <table class="table mt-5">
         <thead>
             <tr>
                 <th>#</th>
