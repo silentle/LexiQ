@@ -133,8 +133,11 @@ def game(request, group_id):
         words = Word.objects.filter(group_id=group_id)
         if words.exists():
             if request.user.is_authenticated:
-                study_progress = StudyProgress.objects.get_or_create(
+                study_progress,created = StudyProgress.objects.get_or_create(
                     user=request.user, word_group_id=group_id)
+                if created:
+                    # 如果新创建了对象，需要初始化进度
+                    study_progress.reset_progress()
                 if study_progress.words_to_learn.exists():
                     word = study_progress.words_to_learn.first()
                     study_progress.remove_word(word)
