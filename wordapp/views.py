@@ -102,7 +102,7 @@ def game(request, group_id):
                 word = random.choice(words)
                 context = {
                     'word': word,
-                    'success_message': 'Congratulations! You guessed the word correctly.'
+                    'success_message': '恭喜，猜对了'
                 }
                 
                 return render(request, 'wordapp/game.html', context)
@@ -118,7 +118,7 @@ def game(request, group_id):
                 'feedback': feedback,
                 'guessed_word': guessed_word,
                 'combined_list': combined_list,
-                'error_message': 'Your guess is incorrect. Please try again.',
+                'error_message': '猜错了，请重试',
                 'last_guess': last_guess
             }
             return render(request, 'wordapp/game.html', context)
@@ -211,6 +211,6 @@ def view_study_records(request):
 
         return render(request, 'wordapp/view_study_records.html', {'study_records': study_records,'total_records': total_records})
     else:
-        # 如果用户未登录，可以根据具体需求进行处理，例如重定向到登录页面或者显示相应的提示信息
+        # 如果用户未登录，重定向到登录页面
         return render(request, 'registration/login.html')
 
