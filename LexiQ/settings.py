@@ -26,9 +26,9 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'cg#p$g+j9tax!#a3cup@1$8obt2_+&
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['.ondigitalocean.app','127.0.0.1', 'localhost''.huangchan.link','huangchan.link']
+ALLOWED_HOSTS = ['sea-lion-app-u52uc.ondigitalocean.app','127.0.0.1', 'localhost''.huangchan.link','huangchan.link']
 
-
+CSRF_TRUSTED_ORIGINS=['https://sea-lion-app-u52uc.ondigitalocean.app','https://*.huangchan.link']
 # Application definition
 
 INSTALLED_APPS = [
