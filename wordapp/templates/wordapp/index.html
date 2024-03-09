@@ -1,19 +1,17 @@
-{% extends 'wordapp/base.html' %}
-
-{% block title %}
-LexiQ - 主页
-{% endblock %}
-
+{% extends 'wordapp/base.html' %} {% block title %} LexiQ - 主页 {% endblock %}
 {% block content %}
 <div class="container mt-5">
-    <div class="p-5 mb-4 bg-light rounded-3">
-        <h1 class="display-4 title-font">欢迎使用 LexiQ</h1>
-        <p class="lead title-font">一款简洁的背单词软件</p>
-        <hr class="my-4">
-        <p>青海湟川中学 张启轩</p>
-        <a class="btn btn-primary btn-lg" href="{% url 'start_game' %}" role="button">开始学习</a>
-    </div>
+  <div class="p-5 mb-4 bg-light rounded-3">
+    <h1 class="display-4 title-font">欢迎使用 LexiQ</h1>
+    <p class="lead title-font">一款简洁的背单词软件</p>
+    <hr class="my-4" />
+    <p>青海湟川中学 张启轩</p>
+    <a
+      class="btn btn-primary btn-lg"
+      href="{% url 'start_game' %}"
+      role="button"
+      >开始学习</a
+    >
+  </div>
 </div>
 {% endblock %}
-
-

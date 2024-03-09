@@ -1,12 +1,9 @@
 <!-- game.html -->
 
-{% extends "wordapp/base.html" %}
-
-{% block content %}
+{% extends "wordapp/base.html" %} {% block content %}
 <div class="container mt-5">
   <h1 class="mb-4">猜测单词</h1>
   <!-- 显示成功或失败的消息 -->
-
 
   <p>汉语意义：{{ word.meaning }}</p>
   <p>单词长度：{{ word.word|length }}</p>
@@ -41,13 +38,9 @@
       />
     </div>
     {% if success_message %}
-    <div class="alert alert-success" role="alert">
-      {{ success_message }}
-    </div>
+    <div class="alert alert-success" role="alert">{{ success_message }}</div>
     {% elif error_message %}
-    <div class="alert alert-danger" role="alert">
-      {{ error_message }}
-    </div>
+    <div class="alert alert-danger" role="alert">{{ error_message }}</div>
     {% endif %}
     <button type="submit" class="btn btn-primary">提交</button>
     <button type="button" class="btn btn-secondary" id="ttsButton">TTS</button>

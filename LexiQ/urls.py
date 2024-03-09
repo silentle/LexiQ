@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from wordapp.views import upload_csv,index,upload_csv,display_words,start_game,delete_word_group,game,tts,play_audio,register,login,view_study_records
+from wordapp.views import upload_csv, index, upload_csv, display_words, start_game, delete_word_group, game, tts, play_audio, register, login, view_study_records
 
 
 urlpatterns = [

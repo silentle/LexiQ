@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
 from .models import Word, WordGroup, StudyRecord, StudyProgress, Achievement, User, UserAchievement
 from django.http import JsonResponse, HttpResponse
@@ -79,8 +80,6 @@ def start_game(request):
     return render(request, 'wordapp/start_game.html', {'form': form, 'groups': groups})
 
 
-from django.shortcuts import get_object_or_404
-
 def game(request, group_id):
     if request.method == 'POST':
         last_guess = request.POST.get('guess', '')
@@ -120,6 +119,7 @@ def game(request, group_id):
         }
         return render(request, 'wordapp/game.html', context)
 
+
 def get_next_word(user, group_id):
     words = Word.objects.filter(group_id=group_id)
     if words.exists():
@@ -129,19 +129,19 @@ def get_next_word(user, group_id):
             if created:
                 study_progress.reset_progress()
             if study_progress.words_to_learn.exists():
-                #word = study_progress.words_to_learn.first()
+                # word = study_progress.words_to_learn.first()
                 word = random.choice(study_progress.words_to_learn.all())
                 study_progress.remove_word(word)
             else:
                 study_progress.reset_progress()
-                #word = study_progress.words_to_learn.first()
-                word = random.choice(study_progress.words_to_learn.all())#改成随机了
+                # word = study_progress.words_to_learn.first()
+                word = random.choice(
+                    study_progress.words_to_learn.all())  # 改成随机了
         else:
             word = random.choice(words)
         return word
     else:
         return None
-
 
 
 def get_feedback(actual_word, guessed_word):
@@ -218,21 +218,21 @@ def view_study_records(request):
     # 如果用户已登录，则查询该用户的学习记录并按时间排序
     if request.user.is_authenticated:
         current_user = request.user
-        study_records = StudyRecord.objects.filter(user=current_user).order_by('-timestamp')
+        study_records = StudyRecord.objects.filter(
+            user=current_user).order_by('-timestamp')
         total_records = study_records.count()
-        
+
         # 检查并添加成就
         user_id = current_user.id
         add_achievements(user_id)
-        
+
         # 获取用户的成就
         user_achievements = UserAchievement.objects.filter(user=current_user)
-        
+
         return render(request, 'wordapp/view_study_records.html', {'study_records': study_records, 'total_records': total_records, 'user_achievements': user_achievements})
     else:
         # 如果用户未登录，重定向到登录页面
         return render(request, 'registration/login.html')
-
 
 
 def add_achievements(user_id):
