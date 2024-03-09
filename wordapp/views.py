@@ -79,45 +79,28 @@ def start_game(request):
     return render(request, 'wordapp/start_game.html', {'form': form, 'groups': groups})
 
 
-def game(request, group_id):
-    last_guess = request.POST.get('guess', '')  # 获取上次提交的猜测值，如果没有则为空字符串
+from django.shortcuts import get_object_or_404
 
+def game(request, group_id):
     if request.method == 'POST':
+        last_guess = request.POST.get('guess', '')
         word_id = request.POST.get('word_id')
         guessed_word = request.POST.get('guess')
-        word = Word.objects.get(pk=word_id)
+        word = get_object_or_404(Word, pk=word_id)
 
-        # 检查用户的猜测是否完全正确
         if all(g == a for g, a in zip(guessed_word, word.word)):
-            # 如果猜测正确，自动切换到下一个单词
-            words = Word.objects.filter(group_id=group_id)
-            if words.exists():
-                if request.user.is_authenticated:
-                    study_record = StudyRecord(user=request.user, word=word)
-                    study_record.save()
-                # 如果用户已登录，从学习进度中获取下一个单词
-                if request.user.is_authenticated:
-                    study_progress = StudyProgress.objects.get_or_create(
-                        user=request.user, word_group_id=group_id)
-                    if study_progress.words_to_learn.exists():
-                        word = study_progress.words_to_learn.first()
-                        study_progress.remove_word(word)
-                    else:
-                        # 如果学习进度中的单词已全部学完，则重置学习进度
-                        study_progress.reset_progress()
-                        word = study_progress.words_to_learn.first()
-                else:
-                    word = random.choice(words)
+            if request.user.is_authenticated:
+                study_record = StudyRecord(user=request.user, word=word)
+                study_record.save()
 
-                context = {
-                    'word': word,
-                    'success_message': '恭喜，猜对了'
-                }
-                return render(request, 'wordapp/game.html', context)
-            else:
-                return redirect('start_game')
+            word = get_next_word(request.user, group_id)
+
+            context = {
+                'word': word,
+                'success_message': '恭喜，猜对了'
+            }
+            return render(request, 'wordapp/game.html', context)
         else:
-            # 如果猜测不正确，显示反馈但保持在当前单词页面
             feedback = get_feedback(word.word, guessed_word)
             combined_list = zip(feedback, guessed_word)
             context = {
@@ -130,29 +113,35 @@ def game(request, group_id):
             }
             return render(request, 'wordapp/game.html', context)
     else:
-        words = Word.objects.filter(group_id=group_id)
-        if words.exists():
-            if request.user.is_authenticated:
-                study_progress,created = StudyProgress.objects.get_or_create(
-                    user=request.user, word_group_id=group_id)
-                if created:
-                    # 如果新创建了对象，需要初始化进度
-                    study_progress.reset_progress()
-                if study_progress.words_to_learn.exists():
-                    word = study_progress.words_to_learn.first()
-                    study_progress.remove_word(word)
-                else:
-                    study_progress.reset_progress()
-                    word = study_progress.words_to_learn.first()
-            else:
-                word = random.choice(words)
+        word = get_next_word(request.user, group_id)
 
-            context = {
-                'word': word,
-            }
-            return render(request, 'wordapp/game.html', context)
+        context = {
+            'word': word,
+        }
+        return render(request, 'wordapp/game.html', context)
+
+def get_next_word(user, group_id):
+    words = Word.objects.filter(group_id=group_id)
+    if words.exists():
+        if user.is_authenticated:
+            study_progress, created = StudyProgress.objects.get_or_create(
+                user=user, word_group_id=group_id)
+            if created:
+                study_progress.reset_progress()
+            if study_progress.words_to_learn.exists():
+                #word = study_progress.words_to_learn.first()
+                word = random.choice(study_progress.words_to_learn.all())
+                study_progress.remove_word(word)
+            else:
+                study_progress.reset_progress()
+                #word = study_progress.words_to_learn.first()
+                word = random.choice(study_progress.words_to_learn.all())#改成随机了
         else:
-            return redirect('start_game')
+            word = random.choice(words)
+        return word
+    else:
+        return None
+
 
 
 def get_feedback(actual_word, guessed_word):
