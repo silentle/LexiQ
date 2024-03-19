@@ -11,3 +11,5 @@ Qvenv/
 wordapp/tts/*
 *.doc
 *.docx
+*.pptx
+*.pdf
