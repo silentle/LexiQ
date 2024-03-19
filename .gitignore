@@ -9,3 +9,5 @@
 
 Qvenv/
 wordapp/tts/*
+*.doc
+*.docx
