@@ -9,7 +9,7 @@ import edge_tts
 import os
 from io import TextIOWrapper
 from .forms import UploadCSVForm, WordGroupForm
-from django.contrib.admin.views.decorators import staff_member_required,login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth import login as auth_login
 from datetime import timedelta
@@ -97,7 +97,7 @@ def game(request, group_id):
             context = {
                 'word': word,
                 'success_message': '恭喜，猜对了',
-                'last_guess':""
+                'last_guess': ""
             }
             return render(request, 'wordapp/game.html', context)
         else:
@@ -214,7 +214,7 @@ def register(request):
         form = UserCreationForm()
     return render(request, 'registration/register.html', {'form': form})
 
-@login_required
+
 def view_study_records(request):
     # 如果用户已登录，则查询该用户的学习记录并按时间排序
     if request.user.is_authenticated:
