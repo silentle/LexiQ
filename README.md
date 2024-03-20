@@ -25,6 +25,7 @@ LexiQ 是一款用于背单词的在线软件，提供了简洁易用的界面�
 4. 迁移数据库：`python manage.py migrate`。
 5. 运行开发服务器：`python manage.py runserver`。
 6. 访问 `http://localhost:8000` 查看网站，并开始使用。
+7. [这里](https://github.com/busiyiworld/maimemo-export/tree/main/libraries/csv)可以找到大量csv词库
 
 
 ## 许可证
