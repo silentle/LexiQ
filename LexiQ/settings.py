@@ -151,7 +151,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': 'mysite.log',
+            'filename': 'LexiQ.log',
             'formatter': 'verbose'
         },
     },
