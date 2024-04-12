@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
-from .models import Word, WordGroup, StudyRecord, UserAchievement
+from .models import Word, WordGroup, StudyRecord, UserAchievement, StudyProgress
 from .views import add_achievements
 from django.utils import timezone
 from datetime import timedelta
@@ -69,7 +69,8 @@ class ViewTests(TestCase):
     @classmethod
     def setUpTestData(self):
         self.user = User.objects.create(username='test_user', password='12345')
-        self.admin_user = User.objects.create_user(username='admin', password='adminpass', is_staff=True)
+        self.admin_user = User.objects.create_user(
+            username='admin', password='adminpass', is_staff=True)
         group = WordGroup.objects.create(name='Test Group')
         Word.objects.create(word='test', meaning='test meaning', group=group)
         self.group = WordGroup.objects.create(name='Test Group2')
@@ -85,23 +86,24 @@ class ViewTests(TestCase):
         self.assertTemplateUsed(response, 'wordapp/index.html')
 
     def test_upload_csv_view(self):
-        #测试未登录用户
+        # 测试未登录用户
         response = self.client.get(reverse('upload_csv'))
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/admin/login/?next=/upload_csv/')
+
     def test_upload_csv_view_user(self):
-        #测试普通用户
+        # 测试普通用户
         self.client.force_login(self.user)
         response = self.client.get(reverse('upload_csv'))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/admin/login/?next=/upload_csv/') 
+        self.assertRedirects(response, '/admin/login/?next=/upload_csv/')
+
     def test_upload_csv_view_admin(self):
-        #测试管理员
+        # 测试管理员
         self.client.force_login(self.admin_user)
         response = self.client.get(reverse('upload_csv'))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'wordapp/upload_csv.html')            
-    
+        self.assertTemplateUsed(response, 'wordapp/upload_csv.html')
 
     def test_display_words_view(self):
         response = self.client.get(reverse('display_words'))
@@ -143,12 +145,12 @@ class ViewTests(TestCase):
 
         self.assertTemplateUsed(response, 'wordapp/view_study_records.html')
 
-        
     def test_view_study_records_unauthenticated(self):
         # 测试未登录用户查看学习记录页面是否重定向到登录页面
         response = self.client.get(reverse('view_study_records'))
         # 检查重定向
-        self.assertRedirects(response, f'/login/?next={reverse("view_study_records")}')
+        self.assertRedirects(
+            response, f'/login/?next={reverse("view_study_records")}')
 
 
 class StudyAchievementTest(TestCase):
@@ -185,3 +187,27 @@ class StudyAchievementTest(TestCase):
             user=self.user, achievement__name="学富五车").exists())
         self.assertTrue(UserAchievement.objects.filter(
             user=self.user, achievement__name="博闻强识").exists())
+
+
+class StudyProgressTestCase(TestCase):
+    def setUp(self):
+        # 创建一个用户
+        self.user = User.objects.create(
+            username='testuser', password='testpassword')
+
+        # 创建两个单词组
+        self.group1 = WordGroup.objects.create(name='Group 1')
+        self.group2 = WordGroup.objects.create(name='Group 2')
+
+    def test_create_multiple_study_progress(self):
+        # 创建两个 StudyProgress 实例并与同一个用户关联
+        progress1 = StudyProgress.objects.create(
+            user=self.user, word_group=self.group1)
+        progress2 = StudyProgress.objects.create(
+            user=self.user, word_group=self.group2)
+        self.assertIsNotNone(progress1)
+        self.assertIsNotNone(progress2)
+        self.assertEqual(progress1.user, self.user)
+        self.assertEqual(progress2.user, self.user)
+        self.assertEqual(progress1.word_group, self.group1)
+        self.assertEqual(progress2.word_group, self.group2)
