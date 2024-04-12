@@ -23,9 +23,10 @@ LexiQ 是一款用于背单词的在线软件，提供了简洁易用的界面�
 2. 启用虚拟环境
 3. 安装 Python 依赖：`pip install -r requirements.txt`。
 4. 迁移数据库：`python manage.py migrate`。
-5. 运行开发服务器：`python manage.py runserver`。
-6. 访问 `http://localhost:8000` 查看网站，并开始使用。
-7. [这里](https://github.com/busiyiworld/maimemo-export/tree/main/libraries/csv)可以找到大量csv词库
+5. 生成静态文件`python manage.py collectstatic `
+6. 运行开发服务器：`python manage.py runserver`。
+7. 访问 `http://localhost:8000` 查看网站，并开始使用。
+8. [这里](https://github.com/busiyiworld/maimemo-export/tree/main/libraries/csv)可以找到大量csv词库
 
 
 ## 许可证
