@@ -299,16 +299,18 @@ def add_achievements(user_id):
 
 
 def check_consecutive_days(study_records, days):
+    #计算连续学习天数 
     today = timezone.now().date()
     start_date = today - timedelta(days=days-1)
     consecutive_days = 0
+    dates=[]
     for record in study_records:
         if record.timestamp.date() >= start_date and record.timestamp.date() <= today:
-            consecutive_days += 1
-            if consecutive_days == days:
-                return True
-        else:
-            consecutive_days = 0
+            #如果学习记录在开始日期到今天之间
+            if record.timestamp.date() not in dates:
+                dates.append(record.timestamp.date())
+    if dates.count>=days-1:
+        return True
     return False
 
 

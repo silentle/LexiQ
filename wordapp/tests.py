@@ -8,7 +8,7 @@ from django.utils import timezone
 class WordModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        # Set up non-modified objects used by all test methods
+        # 测试
         group = WordGroup.objects.create(name='Test Group')
         Word.objects.create(word='test', meaning='test meaning', group=group)
 
@@ -35,7 +35,6 @@ class WordModelTest(TestCase):
 class StudyRecordModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        # Set up non-modified objects used by all test methods
         group = WordGroup.objects.create(name='Test Group')
         word = Word.objects.create(
             word='test', meaning='test meaning', group=group)
