@@ -2,7 +2,11 @@
 <div class="container mt-5">
   <h1 class="mb-4">登录</h1>
   <form method="post">
-    {% csrf_token %} {% bootstrap_form form %}
+    {% csrf_token %} 
+    {% if next %}
+    <input type="hidden" name="next" value="{{ next }}">
+    {% endif %}
+    {% bootstrap_form form %}
     <button type="submit" class="btn btn-primary">登录</button>
   </form>
 </div>

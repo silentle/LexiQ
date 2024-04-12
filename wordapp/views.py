@@ -236,7 +236,7 @@ def view_study_records(request):
         return render(request, 'wordapp/view_study_records.html', {'study_records': study_records, 'total_records': total_records, 'user_achievements': user_achievements})
     else:
         # 如果用户未登录，重定向到登录页面
-        return redirect('login')
+        return redirect(f'/login/?next={request.path}')
 
 
 def add_achievements(user_id):
@@ -245,40 +245,19 @@ def add_achievements(user_id):
         user=user).order_by('-timestamp')
     total_records = study_records.count()
 
-    # 千里之行
-    if total_records >= 1:
-        if not UserAchievement.objects.filter(user=user, achievement__name="千里之行").exists():
-            achievement = Achievement.objects.create(
-                name="千里之行", description="学习第一个单词")
+    achievements = [
+        ("千里之行", 1),
+        ("拾级而上", 10),
+        ("积少成多", 100),
+        ("词汇大师", 500),
+        ("学富五车", 1000),
+    ]
+    for achievement_name, threshold in achievements:
+        if total_records >= threshold and not UserAchievement.objects.filter(user=user, achievement__name=achievement_name).exists():
+            achievement = Achievement.objects.create(name=achievement_name, description=f"学习{threshold}个单词")
             UserAchievement.objects.create(user=user, achievement=achievement)
 
-    # 拾级而上
-    if total_records >= 10:
-        if not UserAchievement.objects.filter(user=user, achievement__name="拾级而上").exists():
-            achievement = Achievement.objects.create(
-                name="拾级而上", description="学习10个单词")
-            UserAchievement.objects.create(user=user, achievement=achievement)
-
-    # 积少成多
-    if total_records >= 100:
-        if not UserAchievement.objects.filter(user=user, achievement__name="积少成多").exists():
-            achievement = Achievement.objects.create(
-                name="积少成多", description="学习100个单词")
-            UserAchievement.objects.create(user=user, achievement=achievement)
-
-    # 登堂入室
-    if total_records >= 500:
-        if not UserAchievement.objects.filter(user=user, achievement__name="词汇大师").exists():
-            achievement = Achievement.objects.create(
-                name="词汇大师", description="学习500个单词")
-            UserAchievement.objects.create(user=user, achievement=achievement)
-
-    # 学富五车
-    if total_records >= 1000:
-        if not UserAchievement.objects.filter(user=user, achievement__name="学富五车").exists():
-            achievement = Achievement.objects.create(
-                name="学富五车", description="学习1000个单词")
-            UserAchievement.objects.create(user=user, achievement=achievement)
+        
     # 心如明镜
     if check_consecutive_days(study_records, 30):
         if not UserAchievement.objects.filter(user=user, achievement__name="心如明镜").exists():

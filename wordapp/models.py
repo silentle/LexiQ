@@ -31,13 +31,19 @@ class StudyRecord(models.Model):
 
 
 class StudyProgress(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     word_group = models.ForeignKey(WordGroup, on_delete=models.CASCADE)
     words_to_learn = models.ManyToManyField(
         Word, related_name='words_to_learn')
 
     def __str__(self):
-        return f"{self.user.username} - {self.word_group.name} Progress"
+        words_learned_count = self.words_to_learn.count()
+        # 获取 word_group 中单词的总数量
+        total_words_count = self.word_group.words.count()
+        # 计算学习进度（已学单词数量除以总单词数量）
+        progress = words_learned_count / total_words_count if total_words_count != 0 else 0
+        # 格式化输出
+        return f"{self.user.username} - {self.word_group.name} Progress: {progress:.2%}"
 
     def create_progress(self):
         """

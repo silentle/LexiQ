@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
-from .models import Word, WordGroup, StudyRecord,UserAchievement
+from .models import Word, WordGroup, StudyRecord, UserAchievement
 from .views import add_achievements
 from django.utils import timezone
 from datetime import timedelta
@@ -67,47 +67,121 @@ class StudyRecordModelTest(TestCase):
 
 class ViewTests(TestCase):
     @classmethod
-    def setUpTestData(cls):
+    def setUpTestData(self):
+        self.user = User.objects.create(username='test_user', password='12345')
+        self.admin_user = User.objects.create_user(username='admin', password='adminpass', is_staff=True)
         group = WordGroup.objects.create(name='Test Group')
         Word.objects.create(word='test', meaning='test meaning', group=group)
+        self.group = WordGroup.objects.create(name='Test Group2')
+        self.word1 = Word.objects.create(
+            word='test1', meaning='meaning1', group=group)
+        self.word2 = Word.objects.create(
+            word='test2', meaning='meaning2', group=group)
+        self.login_url = reverse('login')
+
+    def test_index_view(self):
+        response = self.client.get(reverse('index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'wordapp/index.html')
+
+    def test_upload_csv_view(self):
+        #测试未登录用户
+        response = self.client.get(reverse('upload_csv'))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/admin/login/?next=/upload_csv/')
+    def test_upload_csv_view_user(self):
+        #测试普通用户
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('upload_csv'))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/admin/login/?next=/upload_csv/') 
+    def test_upload_csv_view_admin(self):
+        #测试管理员
+        self.client.force_login(self.admin_user)
+        response = self.client.get(reverse('upload_csv'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'wordapp/upload_csv.html')            
+    
+
+    def test_display_words_view(self):
+        response = self.client.get(reverse('display_words'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'wordapp/display_words.html')
+        self.assertIn(self.group, response.context['words_by_group'])
 
     def test_start_game_view(self):
         response = self.client.get(reverse('start_game'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'wordapp/start_game.html')
+        self.assertIn(self.group, response.context['groups'])
 
-    def test_game_view(self):
-        response = self.client.get(reverse('game', kwargs={'group_id': 1}))
+    def test_game_view_get(self):
+        response = self.client.get(reverse('game', args=[self.group.id]))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'wordapp/game.html')
+        self.assertIn('word', response.context)
+
+    def test_game_view_post_correct_guess(self):
+        response = self.client.post(reverse('game', args=[self.group.id]), {
+                                    'word_id': self.word1.id, 'guess': 'test1'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'wordapp/game.html')
+        self.assertIn('success_message', response.context)
+
+    def test_game_view_post_incorrect_guess(self):
+        response = self.client.post(reverse('game', args=[self.group.id]), {
+                                    'word_id': self.word1.id, 'guess': 'wrong'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'wordapp/game.html')
+        self.assertIn('error_message', response.context)
+
+    def test_view_study_records_authenticated(self):
+        # 测试登录用户查看学习记录页面是否正常
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("view_study_records"))
+        self.assertEqual(response.status_code, 200)
+
+        self.assertTemplateUsed(response, 'wordapp/view_study_records.html')
+
         
+    def test_view_study_records_unauthenticated(self):
+        # 测试未登录用户查看学习记录页面是否重定向到登录页面
+        response = self.client.get(reverse('view_study_records'))
+        # 检查重定向
+        self.assertRedirects(response, f'/login/?next={reverse("view_study_records")}')
+
+
 class StudyAchievementTest(TestCase):
     @classmethod
-    #测试成就能否正常添加
+    # 测试成就能否正常添加
     def setUpTestData(cls):
         group = WordGroup.objects.create(name='Test Group')
         user = User.objects.create_user(username='testuser', password='12345')
-        userid=user.id
         Word.objects.create(word='test', meaning='test meaning', group=group)
-        for i in range(1010):#创建测试用例
+        for i in range(1010):  # 创建测试用例
             today = timezone.now().date()
-            word=Word.objects.create(word=i, meaning='test meaning'+str(i), group=group)
-            StudyRecord.objects.create(user=user, timestamp=today - timedelta(days=i),word_id=word.id)
-            #timestamp无法手动设置，只能自动添加，所以这是一天学1010个单词时候的情况
-        
+            word = Word.objects.create(
+                word=i, meaning='test meaning'+str(i), group=group)
+            StudyRecord.objects.create(
+                user=user, timestamp=today - timedelta(days=i), word_id=word.id)
+            # timestamp无法手动设置，只能自动添加，所以这是一天学1010个单词时候的情况
 
     def test_achievement(self):
 
         user = User.objects.get(username='testuser')
-        user_id=user.id
+        user_id = user.id
 
-        self.user=user
+        self.user = user
         add_achievements(user_id)
-        self.assertTrue(UserAchievement.objects.filter(user=self.user, achievement__name="千里之行").exists())
-        self.assertTrue(UserAchievement.objects.filter(user=self.user, achievement__name="拾级而上").exists())
-        self.assertTrue(UserAchievement.objects.filter(user=self.user, achievement__name="积少成多").exists())
-        self.assertTrue(UserAchievement.objects.filter(user=self.user, achievement__name="词汇大师").exists())
-        self.assertTrue(UserAchievement.objects.filter(user=self.user, achievement__name="学富五车").exists())
-        self.assertTrue(UserAchievement.objects.filter(user=self.user, achievement__name="博闻强识").exists())
-
-
+        self.assertTrue(UserAchievement.objects.filter(
+            user=self.user, achievement__name="千里之行").exists())
+        self.assertTrue(UserAchievement.objects.filter(
+            user=self.user, achievement__name="拾级而上").exists())
+        self.assertTrue(UserAchievement.objects.filter(
+            user=self.user, achievement__name="积少成多").exists())
+        self.assertTrue(UserAchievement.objects.filter(
+            user=self.user, achievement__name="词汇大师").exists())
+        self.assertTrue(UserAchievement.objects.filter(
+            user=self.user, achievement__name="学富五车").exists())
+        self.assertTrue(UserAchievement.objects.filter(
+            user=self.user, achievement__name="博闻强识").exists())
