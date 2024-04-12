@@ -30,5 +30,4 @@ jobs:
         python manage.py collectstatic
     - name: Run Tests
       run: |
-        python manage.py collectstatic
         python manage.py test
