@@ -1,19 +1,24 @@
-from django.shortcuts import get_object_or_404
-from django.shortcuts import render, redirect
-from .models import Word, WordGroup, StudyRecord, StudyProgress, Achievement, User, UserAchievement
-from django.http import JsonResponse, HttpResponse
-from django.contrib import messages
+from collections import deque
+from datetime import timedelta
 import csv
-import random
-import edge_tts
 import os
 from io import TextIOWrapper
-from .forms import UploadCSVForm, WordGroupForm
+
+from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth import login as auth_login
-from datetime import timedelta
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.models import User
+from django.http import JsonResponse, HttpResponse
+from django.shortcuts import get_object_or_404, render, redirect
 from django.utils import timezone
+
+from .forms import UploadCSVForm, WordGroupForm
+from .models import Word, WordGroup, StudyRecord, StudyProgress, Achievement, UserAchievement
+import edge_tts
+import random
+
+
 
 
 def index(request):
@@ -130,14 +135,12 @@ def get_next_word(user, group_id):
             if created:
                 study_progress.reset_progress()
             if study_progress.words_to_learn.exists():
-                # word = study_progress.words_to_learn.first()
                 word = random.choice(study_progress.words_to_learn.all())
                 study_progress.remove_word(word)
             else:
                 study_progress.reset_progress()
-                # word = study_progress.words_to_learn.first()
                 word = random.choice(
-                    study_progress.words_to_learn.all())  # 改成随机了
+                    study_progress.words_to_learn.all())  # 随机选取没学的单词
         else:
             word = random.choice(words)
         return word
@@ -163,14 +166,14 @@ async def tts(request, word):  # 异步
     if not os.path.exists('wordapp/tts'):
         os.makedirs('wordapp/tts')
     delete_files_in_folder('wordapp/tts')
-    TEXT = word
-    VOICE = "en-GB-SoniaNeural"
-    OUTPUT_FILE = f"wordapp/tts/{word}.mp3"
+    text = word
+    voice = "en-GB-SoniaNeural"
+    output_file = f"wordapp/tts/{word}.mp3"
 
-    communicate = edge_tts.Communicate(TEXT, VOICE)
-    await communicate.save(OUTPUT_FILE)
+    communicate = edge_tts.Communicate(text, voice)
+    await communicate.save(output_file)
 
-    return JsonResponse({'status': 'success', 'filename': OUTPUT_FILE})
+    return JsonResponse({'status': 'success', 'filename': output_file})
 
 
 def delete_files_in_folder(folder_path):
@@ -302,17 +305,17 @@ def check_consecutive_days(study_records, days):
     #计算连续学习天数 
     today = timezone.now().date()
     start_date = today - timedelta(days=days-1)
-    consecutive_days = 0
-    dates=[]
+    dates = deque()  # 使用 deque 来存储最近的连续日期
     for record in study_records:
         if record.timestamp.date() >= start_date and record.timestamp.date() <= today:
-            #如果学习记录在开始日期到今天之间
+            # 如果学习记录在开始日期到今天之间
             if record.timestamp.date() not in dates:
                 dates.append(record.timestamp.date())
-    if dates.count>=days-1:
-        return True
-    return False
-
+                if len(dates) >= days:  # 如果 dates 中的日期数量大于 days
+                    return len(dates)
+        else:
+            dates.clear()  # 如果记录日期不在指定范围内，则清空 dates，重新开始计数
+    return len(dates)  
 
 def check_words_in_week(study_records, count):
     today = timezone.now().date()
