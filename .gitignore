@@ -13,4 +13,5 @@ wordapp/tts/*
 *.docx
 *.pptx
 *.pdf
+*.pyc
 项目报告/
