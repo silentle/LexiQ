@@ -54,7 +54,7 @@ def upload_csv(request):
     return render(request, 'wordapp/upload_csv.html', {'form': form, 'groups': groups})
 
 
-@staff_member_required
+@staff_member_required#需要管理员权限
 def delete_word_group(request, group_id):
     if request.method == 'POST':
         Word.objects.filter(group_id=group_id).delete()
