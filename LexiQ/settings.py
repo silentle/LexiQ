@@ -28,7 +28,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['sea-lion-app-u52uc.ondigitalocean.app','127.0.0.1', 'localhost''.huangchan.link','huangchan.link']
 
-CSRF_TRUSTED_ORIGINS=['http://47.237.67.217','https://*.huangchan.link']
+CSRF_TRUSTED_ORIGINS=['47.237.67.217','https://*.huangchan.link']
 # Application definition
 
 INSTALLED_APPS = [
